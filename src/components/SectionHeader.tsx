@@ -5,10 +5,13 @@ interface SectionHeaderProps {
 
 export default function SectionHeader({ num, title }: SectionHeaderProps) {
   return (
-    <div className="flex items-baseline gap-6 mb-10">
-      <span className="text-[11px] text-text-muted tracking-widest">{num}</span>
+    <div className="flex items-center gap-4 mb-10">
+      <span className="text-[10px] text-text-muted tracking-widest">{num}</span>
       <span className="text-2xl font-bold tracking-tight text-white">{title}</span>
-      <div className="flex-1 h-px bg-border" />
+      <span
+        className="flex-1 h-px bg-[#1e1e1e]"
+        aria-hidden="true"
+      />
     </div>
   );
 }

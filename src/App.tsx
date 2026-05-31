@@ -3,12 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BootScreen from './components/BootScreen';
 import TopNav from './components/TopNav';
 import HeroSection from './components/HeroSection';
-import AboutSection from './components/AboutSection';
 import SkillsSection from './components/SkillsSection';
 import ProjectsSection from './components/ProjectsSection';
 import MilestonesSection from './components/MilestonesSection';
-import ContactSection from './components/ContactSection';
 import { Footer } from './components/ui/footer-section';
+import ConstellationBackground from './components/ConstellationBackground';
 import { useActiveSection } from './hooks/useActiveSection';
 import { NAV_ITEMS } from './data/portfolio';
 import { initLenis, destroyLenis } from './components/ui/parallax-scrolling';
@@ -23,7 +22,6 @@ export default function App() {
     setBooted(true);
   }, []);
 
-  // Init Lenis smooth scroll after boot
   useEffect(() => {
     if (!booted) return;
     initLenis();
@@ -43,20 +41,20 @@ export default function App() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="flex flex-col min-h-screen"
           >
-            {/* Top nav — fixed, transparent over hero, gains bg on scroll */}
-            <TopNav activeSection={activeSection} visible={booted} />
+            {/* Fixed constellation canvas — z-0, behind everything */}
+            <ConstellationBackground />
 
-            {/* Main content — pt-14 so nothing hides behind the 56px nav */}
-            <main className="flex-1 pt-14">
-              <HeroSection />
-              <AboutSection />
-              <SkillsSection />
-              <ProjectsSection />
-              <MilestonesSection />
-              <ContactSection />
-            </main>
-
-            <Footer />
+            {/* All content sits at z-10+ so canvas stays purely decorative */}
+            <div className="relative z-10 flex flex-col min-h-screen">
+              <TopNav activeSection={activeSection} visible={booted} />
+              <main className="flex-1 pt-14">
+                <HeroSection />
+                <SkillsSection />
+                <ProjectsSection />
+                <MilestonesSection />
+              </main>
+              <Footer />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

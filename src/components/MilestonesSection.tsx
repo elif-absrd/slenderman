@@ -1,11 +1,12 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { MILESTONES } from '../data/portfolio';
 import SectionHeader from './SectionHeader';
 
 export default function MilestonesSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [hovered, setHovered] = useState<number | null>(null);
 
   return (
     <section id="milestones" className="px-8 md:px-14 py-16 border-b border-border scroll-mt-14">
@@ -16,8 +17,7 @@ export default function MilestonesSection() {
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 sm:grid-cols-2 border border-border"
-        style={{ gap: '1px', background: '#2a2a2a' }}
+        className="grid grid-cols-1 sm:grid-cols-2"
       >
         {MILESTONES.map((m, i) => (
           <motion.div
@@ -25,13 +25,13 @@ export default function MilestonesSection() {
             initial={{ opacity: 0, y: 12 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4, delay: i * 0.07 }}
-            className="px-7 py-6 transition-colors duration-150 group"
-            style={{ background: '#0a0a0a' }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLDivElement).style.background = '#111111';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.background = '#0a0a0a';
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+            className="relative border px-7 py-6 -mr-px -mb-px transition-all duration-200"
+            style={{
+              borderColor: hovered === i ? '#3a3a3a' : '#2a2a2a',
+              background: hovered === i ? 'rgba(10,10,10,0.82)' : 'rgba(10,10,10,0.65)',
+              zIndex: hovered === i ? 1 : 0,
             }}
           >
             <div className="text-[10px] text-amber tracking-[0.15em] uppercase mb-2">{m.tag}</div>
@@ -44,4 +44,4 @@ export default function MilestonesSection() {
       </motion.div>
     </section>
   );
-}
+} 

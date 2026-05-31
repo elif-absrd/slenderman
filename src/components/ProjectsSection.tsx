@@ -10,7 +10,7 @@ export default function ProjectsSection() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section id="projects" className="px-8 md:px-14 py-16 border-b border-border scroll-mt-14">
+    <section id="projects" className="px-8 md:px-14 py-16 scroll-mt-14">
       <SectionHeader num="03" title="PROJECTS" />
 
       <div ref={ref} className="flex flex-col">
@@ -22,9 +22,10 @@ export default function ProjectsSection() {
             transition={{ duration: 0.45, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
             onMouseEnter={() => setHovered(proj.id)}
             onMouseLeave={() => setHovered(null)}
-            className="relative border px-7 py-7 -mt-px cursor-default transition-colors duration-200"
+            className="relative border px-7 py-7 -mt-px cursor-default transition-all duration-200"
             style={{
               borderColor: hovered === proj.id ? '#3a3a3a' : '#2a2a2a',
+              background: hovered === proj.id ? 'rgba(10,10,10,0.82)' : 'rgba(10,10,10,0.65)',
               zIndex: hovered === proj.id ? 1 : 0,
             }}
           >

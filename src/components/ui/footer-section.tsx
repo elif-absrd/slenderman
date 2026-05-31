@@ -21,7 +21,6 @@ const footerLinks: FooterSection[] = [
   {
     label: 'Navigate',
     links: [
-      { title: 'About', href: '#about' },
       { title: 'Skills', href: '#skills' },
       { title: 'Projects', href: '#projects' },
       { title: 'Milestones', href: '#milestones' },
@@ -46,9 +45,22 @@ const footerLinks: FooterSection[] = [
   },
 ];
 
+const CONTACT_ROWS = [
+  { key: 'EMAIL', value: PERSONAL.email, href: `mailto:${PERSONAL.email}`, isLink: true },
+  {
+    key: 'LINKEDIN',
+    value: 'linkedin.com/in/vinay-lunawat-944a93287/',
+    href: PERSONAL.linkedin,
+    isLink: true,
+  },
+  { key: 'GITHUB', value: 'github.com/elif-absrd', href: PERSONAL.github, isLink: true },
+  { key: 'LOCATION', value: PERSONAL.location, href: null, isLink: false },
+  { key: 'STATUS', value: 'Open to opportunities', href: null, isLink: false, isGreen: true },
+];
+
 export function Footer() {
   return (
-    <footer className="relative w-full border-t border-[#2a2a2a] bg-[radial-gradient(35%_128px_at_50%_0%,rgba(232,160,32,0.06),transparent)] px-8 md:px-14 py-14">
+    <footer className="relative w-full border-t border-[#2a2a2a] px-8 md:px-14 py-14" style={{ background: 'rgba(10,10,10,0.80)' }}>
       {/* Amber glow line at top */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-px h-px w-1/3 rounded-full"

@@ -8,7 +8,7 @@ export default function SkillsSection() {
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section id="skills" className="px-8 md:px-14 py-16 border-b border-border scroll-mt-14">
+    <section id="skills" className="px-8 md:px-14 py-16 scroll-mt-14">
       <SectionHeader num="02" title="SKILLS" />
 
       <motion.div

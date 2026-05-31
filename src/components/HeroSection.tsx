@@ -13,30 +13,9 @@ export default function HeroSection() {
     <section
       id="hero"
       // min-h with screen so hero fills viewport below the 56px nav
-      className="relative px-8 md:px-14 py-20 md:py-28 border-b border-border overflow-hidden"
+      className="relative px-8 md:px-14 py-12 md:py-20 overflow-hidden"
       style={{ minHeight: 'calc(100vh - 56px)' }}
     >
-      {/* Subtle grid bg */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 0.04,
-          backgroundImage:
-            'linear-gradient(#e8e8e0 1px, transparent 1px), linear-gradient(90deg, #e8e8e0 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-
-      {/* Amber radial glow bottom-right */}
-      <div
-        className="absolute bottom-0 right-0 pointer-events-none"
-        style={{
-          width: '600px',
-          height: '400px',
-          background:
-            'radial-gradient(ellipse at 80% 100%, rgba(232,160,32,0.06) 0%, transparent 70%)',
-        }}
-      />
 
       {/* Parallax Rust code snippet — decorative */}
       <div
@@ -56,7 +35,7 @@ export default function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="text-[10px] text-amber tracking-[0.2em] uppercase mb-5"
+          className="text-[10px] text-amber tracking-[0.2em] mb-2"
           style={{ color: '#E8A020' }}
         >
           $ whoami
@@ -75,25 +54,14 @@ export default function HeroSection() {
           <span style={{ color: '#E8A020' }}>LUNAWAT</span>
         </motion.h1>
 
-        {/* Sub */}
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.32 }}
-          className="text-[13px] max-w-lg leading-[1.8] font-sans font-light mb-8"
-          style={{ color: '#666660' }}
-        >
-          Engineering student obsessing over low-level architecture, real-time systems, and
-          what happens when software meets bare metal. Rust OS kernels. NOC dashboards.
-          Competitive programming at 3am.
-        </motion.p>
+        
 
         {/* Badges */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.44 }}
-          className="flex flex-wrap gap-2 mb-9"
+          className="flex flex-wrap gap-2 mb-9 mt-8"
         >
           {BADGES.map((b) => (
             <span
@@ -109,6 +77,17 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
+        {/* Sub */}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.32 }}
+          className="text-[13px] max-w-lg leading-[1.8] font-sans font-light mb-8"
+          style={{ color: '#666660' }}
+        >
+          {PERSONAL.bio}
+        </motion.p>
+        
         {/* Links */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -142,21 +121,47 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
+        
+
         {/* Status bar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.72 }}
-          className="mt-16 pt-6 border-t text-[11px]"
-          style={{ borderColor: '#1e1e1e', color: '#444440' }}
+          transition={{ duration: 0.5, delay: 0.76 }}
+          className="mt-6 text-[11px]"
+          style={{ color: '#444440' }}
         >
           <span
             className="inline-block w-1.5 h-1.5 rounded-full mr-2 align-middle"
             style={{ background: '#4ade80', animation: 'heroPulse 2s ease infinite' }}
           />
-          System operational · {PERSONAL.email} · {PERSONAL.location}
+          {PERSONAL.location}
         </motion.div>
       </div>
+
+        {/* Play button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.64 }}
+          className="mt-8"
+        >
+          <a
+            href="/tetris"
+            className="inline-flex items-center gap-2 px-5 py-2 font-mono text-[11px] tracking-[0.2em] border border-[#e8e8e0] text-[#e8e8e0] bg-transparent transition-all duration-150"
+            style={{ boxShadow: '0 0 0 1px #e8e8e0' }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(232,232,224,0.08)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+            }}
+            aria-label="Start Tetris (coming soon)"
+          >
+            <span className="text-[12px]">&gt;</span>
+            PLAY
+          </a>
+        </motion.div>
 
       <style>{`
         @keyframes heroPulse {

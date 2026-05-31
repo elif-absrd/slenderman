@@ -6,39 +6,8 @@ export const PERSONAL = {
   linkedin: 'https://linkedin.com/in/vinay-lunawat-944a93287/',
   github: 'https://github.com/elif-absrd',
   location: 'Jaipur, Rajasthan, IN',
-  bio: `Engineering student at JKLU with a relentless obsession for low-level systems — the kind of code that talks directly to hardware. Not interested in frameworks that hide complexity. Interested in what's underneath them.
-
-Spent time as a Visiting Student Scholar at IIT Gandhinagar (2025), deepening technical foundations across architecture and systems research. Parallel interests in game development systems, real-time execution environments, and competitive algorithm design.
-
-Currently building things most people don't bother understanding.`,
+  bio: `I am something of an engineering student myself, I prefer using technology to build fun, interactive digital projects. I also occasionally experiment with game development and learning algorithms. Outside of the coding world, I love staring at those starry stars, space and hooping on the basketball court.`,
 };
-
-export const EDUCATION = [
-  {
-    year: '2023 → 2027',
-    institution: 'JK Lakshmipat University, Jaipur',
-    degree: 'BTech · Computer Science & Engineering',
-    highlight: true,
-  },
-  {
-    year: '2025',
-    institution: 'IIT Gandhinagar',
-    degree: 'Visiting Student Scholar',
-    highlight: true,
-  },
-  {
-    year: '2022',
-    institution: 'Akshay Public, Kota',
-    degree: 'Senior Secondary · PCM (CBSE)',
-    highlight: false,
-  },
-  {
-    year: '2020',
-    institution: 'Vivekananda Kendra Vidyalaya, Bhilwara',
-    degree: 'Secondary · CBSE',
-    highlight: false,
-  },
-];
 
 export const SKILLS = [
   {
@@ -164,11 +133,9 @@ export const MILESTONES = [
 
 export const NAV_ITEMS = [
   { id: 'hero', label: 'INIT', num: '00' },
-  { id: 'about', label: 'ABOUT', num: '01' },
-  { id: 'skills', label: 'SKILLS', num: '02' },
-  { id: 'projects', label: 'PROJECTS', num: '03' },
-  { id: 'milestones', label: 'MILESTONES', num: '04' },
-  { id: 'contact', label: 'CONTACT', num: '05' },
+  { id: 'skills', label: 'SKILLS', num: '01' },
+  { id: 'projects', label: 'PROJECTS', num: '02' },
+  { id: 'milestones', label: 'MILESTONES', num: '03' },
 ];
 
 export const BOOT_LINES: { text: string; type: 'amber' | 'green' | 'white' | 'muted' }[] = [
@@ -179,7 +146,6 @@ export const BOOT_LINES: { text: string; type: 'amber' | 'green' | 'white' | 'mu
   { text: 'UART console attached at 115200 baud... [ OK ]', type: 'muted' },
   { text: 'Thread primitives initialized...        [ OK ]', type: 'muted' },
   { text: 'Loading process table:', type: 'white' },
-  { text: '  PID 0001  KERNEL       sleeping    about_me', type: 'muted' },
   { text: '  PID 0002  SKILLS       running     core_tech', type: 'muted' },
   { text: '  PID 0003  PROJECTS     running     rs/py/js', type: 'muted' },
   { text: '  PID 0004  ICPC_2024    zombie      competitive', type: 'muted' },

@@ -22,7 +22,7 @@ export default function Sidebar({ activeSection, visible }: SidebarProps) {
       {/* Header */}
       <div className="px-6 py-6 border-b border-border">
         <div className="text-[10px] text-text-muted tracking-widest uppercase mb-1">
-          PID 1337 · ACTIVE
+          PID 2808 · ACTIVE
         </div>
         <div className="text-sm font-bold text-amber tracking-wide leading-tight">
           {PERSONAL.name}

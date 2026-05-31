@@ -62,7 +62,7 @@ export default function ContactSection() {
         >
           <div
             className="border border-border p-6 font-mono text-[12px] leading-[2]"
-            style={{ background: '#111111' }}
+            style={{ background: 'rgba(14,14,14,0.78)' }}
           >
             <div>
               <span style={{ color: '#E8A020' }}>$</span>
