@@ -31,7 +31,7 @@ const footerLinks: FooterSection[] = [
     links: [
       { title: 'VINAY_OS v1.0.0', href: '#hero' },
       { title: 'Build: 2025', href: '#hero' },
-      { title: 'Arch: x86_64', href: '#hero' },``
+      { title: 'Arch: x86_64', href: '#hero' },
       { title: 'PID: 1337', href: '#hero' },
     ],
   },
@@ -44,6 +44,7 @@ const footerLinks: FooterSection[] = [
     ],
   },
 ];
+
 
 
 export function Footer() {
