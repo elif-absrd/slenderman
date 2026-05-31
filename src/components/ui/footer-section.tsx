@@ -31,7 +31,7 @@ const footerLinks: FooterSection[] = [
     links: [
       { title: 'VINAY_OS v1.0.0', href: '#hero' },
       { title: 'Build: 2025', href: '#hero' },
-      { title: 'Arch: x86_64', href: '#hero' },
+      { title: 'Arch: x86_64', href: '#hero' },``
       { title: 'PID: 1337', href: '#hero' },
     ],
   },
@@ -45,18 +45,6 @@ const footerLinks: FooterSection[] = [
   },
 ];
 
-const CONTACT_ROWS = [
-  { key: 'EMAIL', value: PERSONAL.email, href: `mailto:${PERSONAL.email}`, isLink: true },
-  {
-    key: 'LINKEDIN',
-    value: 'linkedin.com/in/vinay-lunawat-944a93287/',
-    href: PERSONAL.linkedin,
-    isLink: true,
-  },
-  { key: 'GITHUB', value: 'github.com/elif-absrd', href: PERSONAL.github, isLink: true },
-  { key: 'LOCATION', value: PERSONAL.location, href: null, isLink: false },
-  { key: 'STATUS', value: 'Open to opportunities', href: null, isLink: false, isGreen: true },
-];
 
 export function Footer() {
   return (
