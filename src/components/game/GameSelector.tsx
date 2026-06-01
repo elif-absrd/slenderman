@@ -159,6 +159,7 @@ export default function GameSelector({ onSelect, onBack }: GameSelectorProps) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        touchAction: "manipulation",
       }}
       onClick={() => inputRef.current?.focus()}
     >
@@ -223,6 +224,7 @@ export default function GameSelector({ onSelect, onBack }: GameSelectorProps) {
         style={{
           flex: 1,
           overflowY: "auto",
+          overflowX: "auto",
           padding: "clamp(1rem, 4vw, 2.5rem) clamp(1rem, 5vw, 4rem) 0.5rem",
           display: "flex",
           flexDirection: "column",
@@ -246,6 +248,9 @@ export default function GameSelector({ onSelect, onBack }: GameSelectorProps) {
                   padding: "0 0.2rem",
                   borderRadius: "2px",
                   transition: "background 0.1s",
+                  minHeight: 36,
+                  display: "flex",
+                  alignItems: "center",
                 }}
                 onMouseEnter={(e) =>
                   ((e.currentTarget as HTMLDivElement).style.background = "#15251c")

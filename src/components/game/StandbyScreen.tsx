@@ -69,6 +69,7 @@ export default function StandbyScreen({ onEnter }: StandbyScreenProps) {
         background: "#000",
         cursor: "pointer",
         overflow: "hidden",
+        touchAction: "manipulation",
         fontFamily: "'Courier New', Courier, monospace",
       }}
       onClick={onEnter}
@@ -119,9 +120,12 @@ export default function StandbyScreen({ onEnter }: StandbyScreenProps) {
         <div
           style={{
             border: "3px solid #fff",
-            padding: "0.6rem 2.4rem",
+            width: "min(92vw, 430px)",
+            boxSizing: "border-box",
+            padding: "0.6rem clamp(0.8rem, 6vw, 2.4rem)",
             background: "#000",
             position: "relative",
+            textAlign: "center",
           }}
         >
           <div
@@ -184,7 +188,9 @@ export default function StandbyScreen({ onEnter }: StandbyScreenProps) {
           right: 0,
           display: "flex",
           justifyContent: "center",
-          gap: "2rem",
+          gap: "0.5rem 1.2rem",
+          flexWrap: "wrap",
+          padding: "0 0.8rem",
           color: "#444",
           fontSize: "0.65rem",
           letterSpacing: "0.12em",

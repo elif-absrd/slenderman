@@ -237,12 +237,13 @@ export default function FlappyBird({ onExit }: Props) {
       title="flappy-bird"
       score={score}
       hiScore={hiScore}
-      controls="SPACE / W / ↑ / Click to flap · R restart · ESC exit"
+      controls="SPACE / W / ↑ / Tap to flap · R restart · ESC exit"
       onExit={onExit}
     >
       <div
         style={{ position: "relative", background: "#70c5ce", touchAction: "none", userSelect: "none" }}
         onPointerDown={(e) => {
+          if ((e.target as HTMLElement).closest("button")) return;
           e.preventDefault();
           flap();
         }}
@@ -253,7 +254,7 @@ export default function FlappyBird({ onExit }: Props) {
           height={H}
           style={{
             display: "block",
-            width: "min(360px, 92vw)",
+            width: "min(360px, 92vw, calc(76dvh * 0.703125))",
             height: "auto",
             cursor: "pointer",
             imageRendering: "pixelated",

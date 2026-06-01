@@ -29,6 +29,7 @@ type GameState = "idle" | "playing" | "dead";
 
 export default function Snake({ onExit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tickCallbackRef = useRef<() => void>(() => undefined);
   const stateRef = useRef({
     snake: [{ x: 12, y: 10 }],
     dir: "RIGHT" as Dir,
@@ -44,6 +45,17 @@ export default function Snake({ onExit }: Props) {
   );
   const [gameState, setGameState] = useState<GameState>("idle");
   const loopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const changeDirection = useCallback((newDir: Dir) => {
+    const s = stateRef.current;
+    const opposite: Record<Dir, Dir> = {
+      UP: "DOWN",
+      DOWN: "UP",
+      LEFT: "RIGHT",
+      RIGHT: "LEFT",
+    };
+    if (newDir !== opposite[s.dir]) s.nextDir = newDir;
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -153,10 +165,14 @@ export default function Snake({ onExit }: Props) {
     }
 
     draw();
-    loopRef.current = setTimeout(tick, s.speed);
+    loopRef.current = setTimeout(() => tickCallbackRef.current(), s.speed);
   }, [draw, hiScore]);
 
-  function startGame() {
+  useEffect(() => {
+    tickCallbackRef.current = tick;
+  }, [tick]);
+
+  const startGame = useCallback(() => {
     if (loopRef.current) clearTimeout(loopRef.current);
     const s = stateRef.current;
     s.snake = [{ x: 12, y: 10 }];
@@ -168,8 +184,8 @@ export default function Snake({ onExit }: Props) {
     s.speed = 130;
     setScore(0);
     setGameState("playing");
-    loopRef.current = setTimeout(tick, s.speed);
-  }
+    loopRef.current = setTimeout(() => tickCallbackRef.current(), s.speed);
+  }, []);
 
   useEffect(() => {
     draw();
@@ -210,13 +226,7 @@ export default function Snake({ onExit }: Props) {
       };
       const newDir = map[e.key];
       if (!newDir) return;
-      const opp: Record<Dir, Dir> = {
-        UP: "DOWN",
-        DOWN: "UP",
-        LEFT: "RIGHT",
-        RIGHT: "LEFT",
-      };
-      if (newDir !== opp[s.dir]) s.nextDir = newDir;
+      changeDirection(newDir);
       e.preventDefault();
     }
     window.addEventListener("keydown", onKey);
@@ -224,7 +234,7 @@ export default function Snake({ onExit }: Props) {
       window.removeEventListener("keydown", onKey);
       if (loopRef.current) clearTimeout(loopRef.current);
     };
-  }, [onExit, tick]);
+  }, [changeDirection, onExit, startGame]);
 
   return (
     <GameShell
@@ -233,13 +243,46 @@ export default function Snake({ onExit }: Props) {
       hiScore={hiScore}
       controls="WASD / Arrows · R restart · ESC exit"
       onExit={onExit}
+      mobileControls={
+        <MobileControls label="Snake touch controls">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 54px)",
+              gridTemplateRows: "repeat(2, 48px)",
+              gap: 7,
+            }}
+          >
+            <span />
+            <TouchButton label="Move up" onPress={() => changeDirection("UP")}>
+              ↑
+            </TouchButton>
+            <span />
+            <TouchButton label="Move left" onPress={() => changeDirection("LEFT")}>
+              ←
+            </TouchButton>
+            <TouchButton label="Move down" onPress={() => changeDirection("DOWN")}>
+              ↓
+            </TouchButton>
+            <TouchButton label="Move right" onPress={() => changeDirection("RIGHT")}>
+              →
+            </TouchButton>
+          </div>
+        </MobileControls>
+      }
     >
       <div style={{ position: "relative" }}>
         <canvas
           ref={canvasRef}
           width={W}
           height={H}
-          style={{ display: "block", borderRadius: 2 }}
+          style={{
+            display: "block",
+            width: "min(500px, 94vw)",
+            height: "auto",
+            borderRadius: 2,
+            imageRendering: "pixelated",
+          }}
         />
         {gameState !== "playing" && (
           <Overlay
@@ -328,6 +371,7 @@ interface ShellProps {
   hiScore: number;
   controls: string;
   onExit: () => void;
+  mobileControls?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -337,10 +381,12 @@ export function GameShell({
   hiScore,
   controls,
   onExit,
+  mobileControls,
   children,
 }: ShellProps) {
   return (
     <div
+      className="game-shell-root"
       style={{
         position: "fixed",
         inset: 0,
@@ -348,7 +394,6 @@ export function GameShell({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
         zIndex: 9997,
         fontFamily: "'Courier New', Courier, monospace",
       }}
@@ -366,8 +411,8 @@ export function GameShell({
 
       {/* Top bar */}
       <div
+        className="game-shell-frame"
         style={{
-          width: "min(560px, 96vw)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -415,6 +460,7 @@ export function GameShell({
 
       {/* Game canvas area */}
       <div
+        className="game-shell-canvas"
         style={{
           border: "1px solid #1e1e1e",
           borderRadius: 4,
@@ -426,8 +472,11 @@ export function GameShell({
         {children}
       </div>
 
+      {mobileControls}
+
       {/* Bottom controls */}
       <div
+        className="desktop-controls-hint"
         style={{
           marginTop: 12,
           color: "#252525",
@@ -439,6 +488,116 @@ export function GameShell({
       >
         {controls}
       </div>
+
+      <style>{`
+        .game-shell-root {
+          justify-content: center;
+          box-sizing: border-box;
+          overflow-y: auto;
+          padding: 16px 0;
+          overscroll-behavior: contain;
+        }
+        .game-shell-frame {
+          width: min(560px, 96vw);
+        }
+        .game-shell-canvas {
+          max-width: 96vw;
+          flex-shrink: 0;
+        }
+        .mobile-game-controls {
+          display: none;
+        }
+        @media (max-width: 768px), (max-height: 760px), (pointer: coarse) {
+          .game-shell-root {
+            justify-content: flex-start;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+          }
+          .mobile-game-controls {
+            display: flex;
+          }
+          .desktop-controls-hint {
+            max-width: 94vw;
+            text-align: center;
+            font-size: 9px !important;
+          }
+        }
+        @media (max-width: 420px) {
+          .game-shell-frame {
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding: 0 2px;
+          }
+          .game-shell-frame > div {
+            gap: 8px !important;
+          }
+        }
+      `}</style>
     </div>
+  );
+}
+
+interface MobileControlsProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+export function MobileControls({ label, children }: MobileControlsProps) {
+  return (
+    <div
+      className="mobile-game-controls"
+      aria-label={label}
+      style={{
+        marginTop: 12,
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        zIndex: 2,
+        touchAction: "manipulation",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface TouchButtonProps {
+  label: string;
+  onPress: () => void;
+  children: React.ReactNode;
+  accent?: boolean;
+}
+
+export function TouchButton({
+  label,
+  onPress,
+  children,
+  accent = false,
+}: TouchButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        onPress();
+      }}
+      style={{
+        minWidth: 48,
+        minHeight: 44,
+        border: `1px solid ${accent ? "#f0a500" : "#3b3b3b"}`,
+        borderRadius: 5,
+        background: accent ? "#2a210d" : "#151515",
+        color: accent ? "#f0a500" : "#c8c8c8",
+        fontFamily: "'Courier New', monospace",
+        fontSize: 20,
+        cursor: "pointer",
+        touchAction: "manipulation",
+        userSelect: "none",
+      }}
+    >
+      {children}
+    </button>
   );
 }

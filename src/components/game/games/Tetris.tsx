@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GameShell, Overlay } from "./Snake";
+import { GameShell, MobileControls, Overlay, TouchButton } from "./Snake";
 
 const COLS = 10;
 const ROWS = 20;
@@ -245,6 +245,7 @@ export default function Tetris({ onExit }: Props) {
   }, [spawnPiece]);
 
   const dropRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleDropCallbackRef = useRef<() => void>(() => undefined);
 
   const scheduleDrop = useCallback(() => {
     if (dropRef.current) clearTimeout(dropRef.current);
@@ -257,11 +258,58 @@ export default function Tetris({ onExit }: Props) {
         lockAndSpawn();
       }
       drawBoard();
-      scheduleDrop();
+      scheduleDropCallbackRef.current();
     }, s.dropInterval);
   }, [drawBoard, lockAndSpawn]);
 
-  function startGame() {
+  useEffect(() => {
+    scheduleDropCallbackRef.current = scheduleDrop;
+  }, [scheduleDrop]);
+
+  const moveHorizontal = useCallback((offset: -1 | 1) => {
+    const s = stateRef.current;
+    if (s.gameState !== "playing") return;
+    if (isValid(s.board, s.piece.shape, s.px + offset, s.py)) s.px += offset;
+    drawBoard();
+  }, [drawBoard]);
+
+  const rotateCurrent = useCallback(() => {
+    const s = stateRef.current;
+    if (s.gameState !== "playing") return;
+    const rotated = rotate(s.piece.shape);
+    if (isValid(s.board, rotated, s.px, s.py)) {
+      s.piece = { ...s.piece, shape: rotated };
+    } else if (isValid(s.board, rotated, s.px - 1, s.py)) {
+      s.piece = { ...s.piece, shape: rotated };
+      s.px -= 1;
+    } else if (isValid(s.board, rotated, s.px + 1, s.py)) {
+      s.piece = { ...s.piece, shape: rotated };
+      s.px += 1;
+    }
+    drawBoard();
+  }, [drawBoard]);
+
+  const softDrop = useCallback(() => {
+    const s = stateRef.current;
+    if (s.gameState !== "playing") return;
+    if (isValid(s.board, s.piece.shape, s.px, s.py + 1)) s.py += 1;
+    else lockAndSpawn();
+    if (dropRef.current) clearTimeout(dropRef.current);
+    scheduleDrop();
+    drawBoard();
+  }, [drawBoard, lockAndSpawn, scheduleDrop]);
+
+  const hardDrop = useCallback(() => {
+    const s = stateRef.current;
+    if (s.gameState !== "playing") return;
+    while (isValid(s.board, s.piece.shape, s.px, s.py + 1)) s.py += 1;
+    lockAndSpawn();
+    if (dropRef.current) clearTimeout(dropRef.current);
+    scheduleDrop();
+    drawBoard();
+  }, [drawBoard, lockAndSpawn, scheduleDrop]);
+
+  const startGame = useCallback(() => {
     if (dropRef.current) clearTimeout(dropRef.current);
     const s = stateRef.current;
     s.board = emptyBoard();
@@ -279,7 +327,7 @@ export default function Tetris({ onExit }: Props) {
     drawNext();
     drawBoard();
     scheduleDrop();
-  }
+  }, [drawBoard, drawNext, scheduleDrop]);
 
   useEffect(() => {
     drawBoard();
@@ -302,31 +350,16 @@ export default function Tetris({ onExit }: Props) {
       if (s.gameState !== "playing") return;
 
       if (e.key === "ArrowLeft") {
-        if (isValid(s.board, s.piece.shape, s.px - 1, s.py)) s.px -= 1;
+        moveHorizontal(-1);
       } else if (e.key === "ArrowRight") {
-        if (isValid(s.board, s.piece.shape, s.px + 1, s.py)) s.px += 1;
+        moveHorizontal(1);
       } else if (e.key === "ArrowDown") {
-        if (isValid(s.board, s.piece.shape, s.px, s.py + 1)) s.py += 1;
-        else { lockAndSpawn(); }
-        if (dropRef.current) clearTimeout(dropRef.current);
-        scheduleDrop();
+        softDrop();
       } else if (e.key === "ArrowUp" || e.key === "z" || e.key === "Z") {
-        const rotated = rotate(s.piece.shape);
-        if (isValid(s.board, rotated, s.px, s.py)) {
-          s.piece = { ...s.piece, shape: rotated };
-        } else if (isValid(s.board, rotated, s.px - 1, s.py)) {
-          s.piece = { ...s.piece, shape: rotated };
-          s.px -= 1;
-        } else if (isValid(s.board, rotated, s.px + 1, s.py)) {
-          s.piece = { ...s.piece, shape: rotated };
-          s.px += 1;
-        }
+        rotateCurrent();
       } else if (e.key === " ") {
         // Hard drop
-        while (isValid(s.board, s.piece.shape, s.px, s.py + 1)) s.py += 1;
-        lockAndSpawn();
-        if (dropRef.current) clearTimeout(dropRef.current);
-        scheduleDrop();
+        hardDrop();
         e.preventDefault();
         return;
       } else {
@@ -340,7 +373,7 @@ export default function Tetris({ onExit }: Props) {
       window.removeEventListener("keydown", onKey);
       if (dropRef.current) clearTimeout(dropRef.current);
     };
-  }, [onExit, scheduleDrop, lockAndSpawn, drawBoard]);
+  }, [drawBoard, hardDrop, moveHorizontal, onExit, rotateCurrent, softDrop, startGame]);
 
   return (
     <GameShell
@@ -349,14 +382,37 @@ export default function Tetris({ onExit }: Props) {
       hiScore={hiScore}
       controls="← → move · ↑/Z rotate · ↓ soft drop · SPACE hard drop · R restart · ESC exit"
       onExit={onExit}
+      mobileControls={
+        <MobileControls label="Tetris touch controls">
+          <div style={{ display: "flex", gap: 6 }}>
+            <TouchButton label="Move left" onPress={() => moveHorizontal(-1)}>←</TouchButton>
+            <TouchButton label="Rotate" onPress={rotateCurrent}>↻</TouchButton>
+            <TouchButton label="Move right" onPress={() => moveHorizontal(1)}>→</TouchButton>
+            <TouchButton label="Soft drop" onPress={softDrop}>↓</TouchButton>
+            <TouchButton label="Hard drop" onPress={hardDrop} accent>⇊</TouchButton>
+          </div>
+        </MobileControls>
+      }
     >
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-        <div style={{ position: "relative" }}>
+      <div
+        style={{
+          display: "flex",
+          width: "min(368px, 94vw)",
+          gap: "clamp(6px, 2vw, 12px)",
+          alignItems: "flex-start",
+        }}
+      >
+        <div style={{ position: "relative", flex: "1 1 auto", minWidth: 0 }}>
           <canvas
             ref={canvasRef}
             width={W}
             height={H}
-            style={{ display: "block" }}
+            style={{
+              display: "block",
+              width: "min(280px, calc(94vw - 82px))",
+              height: "auto",
+              imageRendering: "pixelated",
+            }}
           />
           {gameState !== "playing" && (
             <Overlay
@@ -379,7 +435,8 @@ export default function Tetris({ onExit }: Props) {
             color: "#444",
             fontSize: 11,
             paddingTop: 4,
-            width: 76,
+            width: "clamp(62px, 20vw, 76px)",
+            flexShrink: 0,
           }}
         >
           <div style={{ marginBottom: 16 }}>
@@ -396,7 +453,7 @@ export default function Tetris({ onExit }: Props) {
                 ref={nextCanvasRef}
                 width={4 * 18}
                 height={4 * 18}
-                style={{ display: "block" }}
+                style={{ display: "block", width: "100%", height: "auto" }}
               />
             </div>
           </div>
