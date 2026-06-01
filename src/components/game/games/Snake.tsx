@@ -30,6 +30,7 @@ type GameState = "idle" | "playing" | "dead";
 export default function Snake({ onExit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tickCallbackRef = useRef<() => void>(() => undefined);
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
   const stateRef = useRef({
     snake: [{ x: 12, y: 10 }],
     dir: "RIGHT" as Dir,
@@ -56,6 +57,26 @@ export default function Snake({ onExit }: Props) {
     };
     if (newDir !== opposite[s.dir]) s.nextDir = newDir;
   }, []);
+
+  const handleSwipe = useCallback((x: number, y: number) => {
+    const start = swipeStartRef.current;
+    if (!start) return;
+    const dx = x - start.x;
+    const dy = y - start.y;
+    const minSwipeDistance = 18;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < minSwipeDistance) return;
+
+    changeDirection(
+      Math.abs(dx) > Math.abs(dy)
+        ? dx > 0
+          ? "RIGHT"
+          : "LEFT"
+        : dy > 0
+        ? "DOWN"
+        : "UP"
+    );
+    swipeStartRef.current = { x, y };
+  }, [changeDirection]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -247,31 +268,42 @@ export default function Snake({ onExit }: Props) {
         <MobileControls label="Snake touch controls">
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 54px)",
-              gridTemplateRows: "repeat(2, 48px)",
-              gap: 7,
+              color: "#777",
+              fontSize: 11,
+              letterSpacing: "0.12em",
+              padding: "6px 0 2px",
             }}
           >
-            <span />
-            <TouchButton label="Move up" onPress={() => changeDirection("UP")}>
-              ↑
-            </TouchButton>
-            <span />
-            <TouchButton label="Move left" onPress={() => changeDirection("LEFT")}>
-              ←
-            </TouchButton>
-            <TouchButton label="Move down" onPress={() => changeDirection("DOWN")}>
-              ↓
-            </TouchButton>
-            <TouchButton label="Move right" onPress={() => changeDirection("RIGHT")}>
-              →
-            </TouchButton>
+            SWIPE ON THE BOARD TO STEER
           </div>
         </MobileControls>
       }
     >
-      <div style={{ position: "relative" }}>
+      <div
+        style={{
+          position: "relative",
+          touchAction: "none",
+          userSelect: "none",
+        }}
+        onPointerDown={(e) => {
+          if (e.pointerType === "mouse") return;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          swipeStartRef.current = { x: e.clientX, y: e.clientY };
+        }}
+        onPointerMove={(e) => {
+          if (e.pointerType === "mouse") return;
+          e.preventDefault();
+          handleSwipe(e.clientX, e.clientY);
+        }}
+        onPointerUp={(e) => {
+          if (e.pointerType === "mouse") return;
+          handleSwipe(e.clientX, e.clientY);
+          swipeStartRef.current = null;
+        }}
+        onPointerCancel={() => {
+          swipeStartRef.current = null;
+        }}
+      >
         <canvas
           ref={canvasRef}
           width={W}
