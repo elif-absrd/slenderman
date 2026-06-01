@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from "react-router-dom";
 import { PERSONAL } from '../data/portfolio';
 
 const BADGES = [
@@ -12,7 +13,6 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      // min-h with screen so hero fills viewport below the 56px nav
       className="relative px-8 md:px-14 py-12 md:py-20 overflow-hidden"
       style={{ minHeight: 'calc(100vh - 56px)' }}
     >
@@ -54,8 +54,6 @@ export default function HeroSection() {
           <span style={{ color: '#E8A020' }}>LUNAWAT</span>
         </motion.h1>
 
-        
-
         {/* Badges */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -77,7 +75,7 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
-        {/* Sub */}
+        {/* Bio */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,7 +85,7 @@ export default function HeroSection() {
         >
           {PERSONAL.bio}
         </motion.p>
-        
+
         {/* Links */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -121,8 +119,6 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
-        
-
         {/* Status bar */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -137,31 +133,36 @@ export default function HeroSection() {
           />
           {PERSONAL.location}
         </motion.div>
-      </div>
 
-        {/* Play button */}
+        {/* Play link */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.64 }}
           className="mt-8"
         >
-          <a
-            href="/tetris"
-            className="inline-flex items-center gap-2 px-5 py-2 font-mono text-[11px] tracking-[0.2em] border border-[#e8e8e0] text-[#e8e8e0] bg-transparent transition-all duration-150"
-            style={{ boxShadow: '0 0 0 1px #e8e8e0' }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(232,232,224,0.08)';
+          <Link
+            to="/game"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              border: "1px solid #fff",
+              background: "transparent",
+              color: "#fff",
+              padding: "0.6rem 1.4rem",
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: "0.85rem",
+              letterSpacing: "0.1em",
+              textDecoration: "none",
+              cursor: "pointer",
             }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-            }}
-            aria-label="Start Tetris (coming soon)"
+            aria-label="Go to game"
           >
-            <span className="text-[12px]">&gt;</span>
-            PLAY
-          </a>
+            &gt; PLAY
+          </Link>
         </motion.div>
+      </div>
 
       <style>{`
         @keyframes heroPulse {
@@ -169,6 +170,7 @@ export default function HeroSection() {
           50% { opacity: 0.35; }
         }
       `}</style>
+
     </section>
   );
 }
