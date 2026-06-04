@@ -599,6 +599,7 @@ interface TouchButtonProps {
   onPress: () => void;
   children: React.ReactNode;
   accent?: boolean;
+  terminal?: boolean;
 }
 
 export function TouchButton({
@@ -606,7 +607,12 @@ export function TouchButton({
   onPress,
   children,
   accent = false,
+  terminal = false,
 }: TouchButtonProps) {
+  const borderColor = accent ? "#E8A020" : terminal ? "#1d6135" : "#3b3b3b";
+  const background = accent ? "#2a210d" : terminal ? "#07130a" : "#151515";
+  const color = accent ? "#E8A020" : terminal ? "#4ade80" : "#c8c8c8";
+
   return (
     <button
       type="button"
@@ -618,10 +624,10 @@ export function TouchButton({
       style={{
         minWidth: 48,
         minHeight: 44,
-        border: `1px solid ${accent ? "#f0a500" : "#3b3b3b"}`,
+        border: `1px solid ${borderColor}`,
         borderRadius: 5,
-        background: accent ? "#2a210d" : "#151515",
-        color: accent ? "#f0a500" : "#c8c8c8",
+        background,
+        color,
         fontFamily: "'Courier New', monospace",
         fontSize: 20,
         cursor: "pointer",

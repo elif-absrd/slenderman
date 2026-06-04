@@ -6,18 +6,23 @@ const ROWS = 20;
 const CELL = 28;
 const W = COLS * CELL;
 const H = ROWS * CELL;
+const SCREEN = "#050705";
+const PHOSPHOR = "#4ade80";
+const PHOSPHOR_DIM = "#1d6135";
+const PHOSPHOR_FAINT = "#12351f";
+const AMBER = "#E8A020";
 
 type Board = (string | null)[][];
 type PieceShape = number[][];
 
 const PIECES: { shape: PieceShape; color: string }[] = [
-  { shape: [[1, 1, 1, 1]], color: "#5ecfef" },                          // I - cyan
-  { shape: [[1, 0], [1, 0], [1, 1]], color: "#f0a500" },               // J - amber
-  { shape: [[0, 1], [0, 1], [1, 1]], color: "#4a90d9" },               // L - blue
-  { shape: [[1, 1], [1, 1]], color: "#f5e642" },                       // O - yellow
-  { shape: [[0, 1, 1], [1, 1, 0]], color: "#5ed45e" },                 // S - green
-  { shape: [[0, 1, 0], [1, 1, 1]], color: "#b05ef0" },                 // T - purple
-  { shape: [[1, 1, 0], [0, 1, 1]], color: "#f05e5e" },                 // Z - red
+  { shape: [[1, 1, 1, 1]], color: PHOSPHOR },
+  { shape: [[1, 0], [1, 0], [1, 1]], color: PHOSPHOR },
+  { shape: [[0, 1], [0, 1], [1, 1]], color: PHOSPHOR },
+  { shape: [[1, 1], [1, 1]], color: PHOSPHOR },
+  { shape: [[0, 1, 1], [1, 1, 0]], color: PHOSPHOR },
+  { shape: [[0, 1, 0], [1, 1, 1]], color: PHOSPHOR },
+  { shape: [[1, 1, 0], [0, 1, 1]], color: PHOSPHOR },
 ];
 
 function rotate(shape: PieceShape): PieceShape {
@@ -117,23 +122,14 @@ export default function Tetris({ onExit }: Props) {
     const ctx = canvas.getContext("2d")!;
     const s = stateRef.current;
 
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = SCREEN;
     ctx.fillRect(0, 0, W, H);
 
-    // Grid lines
-    ctx.strokeStyle = "#141414";
-    ctx.lineWidth = 0.5;
-    for (let x = 0; x <= COLS; x++) {
-      ctx.beginPath();
-      ctx.moveTo(x * CELL, 0);
-      ctx.lineTo(x * CELL, H);
-      ctx.stroke();
-    }
-    for (let y = 0; y <= ROWS; y++) {
-      ctx.beginPath();
-      ctx.moveTo(0, y * CELL);
-      ctx.lineTo(W, y * CELL);
-      ctx.stroke();
+    // The old terminal version printed the well as a character matrix.
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        drawTerminalCell(ctx, c, r, ".", PHOSPHOR_FAINT);
+      }
     }
 
     // Ghost piece
@@ -143,12 +139,8 @@ export default function Tetris({ onExit }: Props) {
       for (let r = 0; r < s.piece.shape.length; r++) {
         for (let c = 0; c < s.piece.shape[r].length; c++) {
           if (!s.piece.shape[r][c]) continue;
-          const gx = (s.px + c) * CELL;
-          const gy = (ghostY + r) * CELL;
           if (ghostY + r >= 0) {
-            ctx.strokeStyle = s.piece.color + "40";
-            ctx.lineWidth = 1;
-            ctx.strokeRect(gx + 1, gy + 1, CELL - 2, CELL - 2);
+            drawTerminalCell(ctx, s.px + c, ghostY + r, "·", PHOSPHOR_DIM);
           }
         }
       }
@@ -159,10 +151,7 @@ export default function Tetris({ onExit }: Props) {
       for (let c = 0; c < COLS; c++) {
         const color = s.board[r][c];
         if (color) {
-          ctx.fillStyle = color;
-          ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
-          ctx.fillStyle = "rgba(255,255,255,0.1)";
-          ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, 3);
+          drawTerminalCell(ctx, c, r, "[]", color);
         }
       }
     }
@@ -172,13 +161,8 @@ export default function Tetris({ onExit }: Props) {
       for (let r = 0; r < s.piece.shape.length; r++) {
         for (let c = 0; c < s.piece.shape[r].length; c++) {
           if (!s.piece.shape[r][c]) continue;
-          const px = (s.px + c) * CELL;
-          const py = (s.py + r) * CELL;
           if (s.py + r >= 0) {
-            ctx.fillStyle = s.piece.color;
-            ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
-            ctx.fillStyle = "rgba(255,255,255,0.15)";
-            ctx.fillRect(px + 1, py + 1, CELL - 2, 3);
+            drawTerminalCell(ctx, s.px + c, s.py + r, "[]", AMBER);
           }
         }
       }
@@ -193,7 +177,7 @@ export default function Tetris({ onExit }: Props) {
     const size = 4;
     const cs = 18;
 
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = SCREEN;
     ctx.fillRect(0, 0, size * cs, size * cs);
 
     const offX = Math.floor((size - next.shape[0].length) / 2);
@@ -202,13 +186,10 @@ export default function Tetris({ onExit }: Props) {
     for (let r = 0; r < next.shape.length; r++) {
       for (let c = 0; c < next.shape[r].length; c++) {
         if (!next.shape[r][c]) continue;
-        ctx.fillStyle = next.color;
-        ctx.fillRect(
-          (offX + c) * cs + 1,
-          (offY + r) * cs + 1,
-          cs - 2,
-          cs - 2
-        );
+        ctx.fillStyle = PHOSPHOR;
+        ctx.font = "bold 16px 'Courier New', monospace";
+        ctx.textBaseline = "middle";
+        ctx.fillText("[]", (offX + c) * cs, (offY + r) * cs + cs / 2);
       }
     }
   }, []);
@@ -385,11 +366,11 @@ export default function Tetris({ onExit }: Props) {
       mobileControls={
         <MobileControls label="Tetris touch controls">
           <div style={{ display: "flex", gap: 6 }}>
-            <TouchButton label="Move left" onPress={() => moveHorizontal(-1)}>←</TouchButton>
-            <TouchButton label="Rotate" onPress={rotateCurrent}>↻</TouchButton>
-            <TouchButton label="Move right" onPress={() => moveHorizontal(1)}>→</TouchButton>
-            <TouchButton label="Soft drop" onPress={softDrop}>↓</TouchButton>
-            <TouchButton label="Hard drop" onPress={hardDrop} accent>⇊</TouchButton>
+            <TouchButton label="Move left" onPress={() => moveHorizontal(-1)} terminal>←</TouchButton>
+            <TouchButton label="Rotate" onPress={rotateCurrent} terminal>↻</TouchButton>
+            <TouchButton label="Move right" onPress={() => moveHorizontal(1)} terminal>→</TouchButton>
+            <TouchButton label="Soft drop" onPress={softDrop} terminal>↓</TouchButton>
+            <TouchButton label="Hard drop" onPress={hardDrop} terminal accent>⇊</TouchButton>
           </div>
         </MobileControls>
       }
@@ -400,6 +381,7 @@ export default function Tetris({ onExit }: Props) {
           width: "min(368px, 94vw)",
           gap: "clamp(6px, 2vw, 12px)",
           alignItems: "flex-start",
+          background: SCREEN,
         }}
       >
         <div style={{ position: "relative", flex: "1 1 auto", minWidth: 0 }}>
@@ -412,6 +394,8 @@ export default function Tetris({ onExit }: Props) {
               width: "min(280px, calc(94vw - 82px))",
               height: "auto",
               imageRendering: "pixelated",
+              border: `1px solid ${PHOSPHOR_DIM}`,
+              boxShadow: `0 0 18px ${PHOSPHOR_FAINT}`,
             }}
           />
           {gameState !== "playing" && (
@@ -432,7 +416,7 @@ export default function Tetris({ onExit }: Props) {
         <div
           style={{
             fontFamily: "'Courier New', monospace",
-            color: "#444",
+            color: PHOSPHOR_DIM,
             fontSize: 11,
             paddingTop: 4,
             width: "clamp(62px, 20vw, 76px)",
@@ -440,13 +424,12 @@ export default function Tetris({ onExit }: Props) {
           }}
         >
           <div style={{ marginBottom: 16 }}>
-            <div style={{ marginBottom: 6, letterSpacing: 1 }}>NEXT</div>
+            <div style={{ marginBottom: 6, letterSpacing: 1 }}>NEXT:</div>
             <div
               style={{
-                border: "1px solid #1a1a1a",
-                borderRadius: 3,
+                border: `1px solid ${PHOSPHOR_DIM}`,
                 padding: 4,
-                background: "#0a0a0a",
+                background: SCREEN,
               }}
             >
               <canvas
@@ -459,20 +442,47 @@ export default function Tetris({ onExit }: Props) {
           </div>
 
           <div style={{ marginBottom: 12 }}>
-            <div style={{ marginBottom: 4, letterSpacing: 1 }}>LEVEL</div>
-            <div style={{ color: "#f0a500", fontSize: 20 }}>
+            <div style={{ marginBottom: 4, letterSpacing: 1 }}>LEVEL:</div>
+            <div style={{ color: AMBER, fontSize: 20, textShadow: `0 0 8px ${AMBER}` }}>
               {String(level).padStart(2, "0")}
             </div>
           </div>
 
           <div>
-            <div style={{ marginBottom: 4, letterSpacing: 1 }}>LINES</div>
-            <div style={{ color: "#c8c8c8", fontSize: 14 }}>
+            <div style={{ marginBottom: 4, letterSpacing: 1 }}>LINES:</div>
+            <div style={{ color: PHOSPHOR, fontSize: 14 }}>
               {String(Math.floor(score / 100)).padStart(3, "0")}
             </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: 18,
+              color: PHOSPHOR_DIM,
+              fontSize: 9,
+              lineHeight: 1.55,
+            }}
+          >
+            <div>STATUS:</div>
+            <div style={{ color: PHOSPHOR }}>ONLINE</div>
           </div>
         </div>
       </div>
     </GameShell>
   );
+}
+
+function drawTerminalCell(
+  ctx: CanvasRenderingContext2D,
+  col: number,
+  row: number,
+  glyph: string,
+  color: string
+) {
+  ctx.fillStyle = color;
+  ctx.font = `bold ${glyph === "." ? 16 : 20}px "Courier New", monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(glyph, col * CELL + CELL / 2, row * CELL + CELL / 2 + 1);
+  ctx.textAlign = "start";
 }
