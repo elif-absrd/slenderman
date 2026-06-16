@@ -8,7 +8,7 @@ interface SidebarProps {
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  if (el) el.scrollIntoView({ behavior: 'auto' });
 }
 
 export default function Sidebar({ activeSection, visible }: SidebarProps) {

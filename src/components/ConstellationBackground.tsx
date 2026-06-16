@@ -118,6 +118,8 @@ interface ScatterStar {
   phase: number;
   speed: number;
   layer: 0 | 1 | 2;
+  color: string;
+  sparkle: boolean;
 }
 
 const PARALLAX_MOUSE = [3, 8, 14] as const;
@@ -131,16 +133,18 @@ function buildScatter(count: number, VH: number, pageH: number): ScatterStar[] {
       vx:    Math.random(),
       pageY: Math.random() * pageH,
       r:
-        layer === 0 ? 0.25 + Math.random() * 0.28 :
-        layer === 1 ? 0.35 + Math.random() * 0.32 :
-                      0.50 + Math.random() * 0.38,
+        layer === 0 ? 0.42 + Math.random() * 0.32 :
+        layer === 1 ? 0.62 + Math.random() * 0.45 :
+                      0.90 + Math.random() * 0.65,
       baseAlpha:
-        layer === 0 ? 0.030 + Math.random() * 0.040 :
-        layer === 1 ? 0.055 + Math.random() * 0.050 :
-                      0.075 + Math.random() * 0.055,
+        layer === 0 ? 0.12 + Math.random() * 0.10 :
+        layer === 1 ? 0.18 + Math.random() * 0.14 :
+                      0.26 + Math.random() * 0.18,
       phase:  Math.random() * Math.PI * 2,
       speed:  0.003 + Math.random() * 0.009,
       layer,
+      color: Math.random() > 0.68 ? '255,246,220' : '232,160,32',
+      sparkle: layer === 2 || Math.random() > 0.88,
     });
   }
   // suppress unused param warnings
@@ -150,8 +154,17 @@ function buildScatter(count: number, VH: number, pageH: number): ScatterStar[] {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const LINE_ALPHA  = 0.058;
-const LABEL_ALPHA = 0.068;
+const LINE_ALPHA  = 0.11;
+const LABEL_ALPHA = 0.58;
+
+function constellationX(vx: number, VW: number) {
+  const inset = VW < 520 ? 0.12 : VW < 768 ? 0.08 : 0;
+  return (inset + vx * (1 - inset * 2)) * VW;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
 
 export default function ConstellationBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -170,12 +183,13 @@ export default function ConstellationBackground() {
     let smx = 0, smy = 0;
     let rafId = 0;
     let tick  = 0;
+    let isMobile = false;
 
     let scatter: ScatterStar[]           = [];
     let constellations: BuiltConstellation[] = [];
 
     function rebuild() {
-      scatter       = buildScatter(120, VH, pageH);
+      scatter       = buildScatter(isMobile ? 210 : 260, VH, pageH);
       constellations = buildConstellations(VH);
     }
 
@@ -183,6 +197,7 @@ export default function ConstellationBackground() {
       const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
       VW    = window.innerWidth;
       VH    = window.innerHeight;
+      isMobile = VW < 768;
       pageH = document.documentElement.scrollHeight;
       // Canvas covers viewport only (fixed position)
       cvs.width  = VW * dpr;
@@ -200,11 +215,17 @@ export default function ConstellationBackground() {
       my = e.clientY;
     }
 
-    function dot(x: number, y: number, r: number, alpha: number) {
+    function dot(x: number, y: number, r: number, alpha: number, color = '232,160,32', glow = false) {
+      if (glow) {
+        c.save();
+        c.shadowColor = `rgba(${color},${Math.min(alpha * 0.9, 0.45).toFixed(3)})`;
+        c.shadowBlur = r * 7;
+      }
       c.beginPath();
       c.arc(x, y, r, 0, Math.PI * 2);
-      c.fillStyle = `rgba(232,160,32,${alpha.toFixed(3)})`;
+      c.fillStyle = `rgba(${color},${alpha.toFixed(3)})`;
       c.fill();
+      if (glow) c.restore();
     }
 
     function spike(x: number, y: number, len: number, alpha: number, lw: number) {
@@ -239,7 +260,10 @@ export default function ConstellationBackground() {
         const sx = ((s.vx * VW + mx_off) % VW + VW) % VW;
         const sy = rawScreenY;
         const a  = s.baseAlpha * (0.7 + 0.3 * Math.sin(tick * s.speed * 80 + s.phase));
-        dot(sx, sy, s.r, a);
+        dot(sx, sy, s.r, a, s.color, s.sparkle);
+        if (s.sparkle) {
+          spike(sx, sy, s.r * (isMobile ? 2.7 : 3.2), a * 0.34, 0.42);
+        }
       }
 
       // ── Constellations ───────────────────────────────────────────────────
@@ -249,10 +273,10 @@ export default function ConstellationBackground() {
           const mx_off = normX * PARALLAX_MOUSE[1];
           const my_off = normY * PARALLAX_MOUSE[1];
           return {
-            x: s.vx * VW + mx_off,
+            x: constellationX(s.vx, VW) + mx_off,
             y: s.pageY - scrollY + my_off,
-            r: s.r,
-            a: s.baseAlpha * (0.8 + 0.2 * Math.sin(tick * s.speed * 80 + s.phase)),
+            r: s.r * (isMobile ? 1.25 : 1.18),
+            a: Math.min(1, (s.baseAlpha + 0.22) * (0.82 + 0.18 * Math.sin(tick * s.speed * 80 + s.phase))),
           };
         });
 
@@ -263,7 +287,7 @@ export default function ConstellationBackground() {
         // Lines
         c.save();
         c.strokeStyle = `rgba(232,160,32,${LINE_ALPHA})`;
-        c.lineWidth = 0.6;
+        c.lineWidth = isMobile ? 0.75 : 0.65;
         for (const [a, b] of con.lines) {
           if (!pos[a] || !pos[b]) continue;
           c.beginPath();
@@ -276,9 +300,12 @@ export default function ConstellationBackground() {
         // Label
         if (pos[0]) {
           c.save();
-          c.font = '7px "IBM Plex Mono", monospace';
+          c.font = `${isMobile ? 10 : 9}px "IBM Plex Mono", monospace`;
           c.fillStyle = `rgba(232,160,32,${LABEL_ALPHA})`;
-          c.fillText(con.name, pos[0].x + 6, pos[0].y - 7);
+          const labelWidth = c.measureText(con.name).width;
+          const lx = clamp(pos[0].x + 8, 12, VW - labelWidth - 12);
+          const ly = clamp(pos[0].y - 10, 18, VH - 12);
+          c.fillText(con.name, lx, ly);
           c.restore();
         }
 
@@ -286,11 +313,11 @@ export default function ConstellationBackground() {
         for (let si = 0; si < pos.length; si++) {
           const p      = pos[si];
           const isHero = si === con.heroStar;
-          dot(p.x, p.y, p.r, p.a);
+          dot(p.x, p.y, p.r, p.a, '232,160,32', true);
           if (isHero) {
-            spike(p.x, p.y, p.r * 4.5, p.a * 0.55, 0.65);
+            spike(p.x, p.y, p.r * 5.2, p.a * 0.68, 0.72);
           } else if (p.r > 1.1) {
-            spike(p.x, p.y, p.r * 2.8, p.a * 0.25, 0.4);
+            spike(p.x, p.y, p.r * 3.1, p.a * 0.34, 0.45);
           }
         }
       }
@@ -326,7 +353,7 @@ export default function ConstellationBackground() {
       ref={canvasRef}
       aria-hidden="true"
       style={{
-        position:      'fixed',
+        position:      'fixed',       
         top:           0,
         left:          0,
         zIndex:        0,

@@ -441,6 +441,16 @@ export function GameShell({
         }}
       />
 
+      <button
+        type="button"
+        className="mobile-back-to-games"
+        onClick={onExit}
+        aria-label="Back to games menu"
+      >
+        <span aria-hidden="true">←</span>
+        <span>menu</span>
+      </button>
+
       {/* Top bar */}
       <div
         className="game-shell-frame"
@@ -539,11 +549,41 @@ export function GameShell({
         .mobile-game-controls {
           display: none;
         }
+        .mobile-back-to-games {
+          display: none;
+        }
         @media (max-width: 768px), (max-height: 760px), (pointer: coarse) {
           .game-shell-root {
             justify-content: flex-start;
-            padding-top: max(12px, env(safe-area-inset-top));
+            padding-top: max(48px, calc(env(safe-area-inset-top) + 42px));
             padding-bottom: max(12px, env(safe-area-inset-bottom));
+          }
+          .mobile-back-to-games {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            left: max(10px, env(safe-area-inset-left));
+            z-index: 4;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid rgba(232, 160, 32, 0.28);
+            border-radius: 4px;
+            background: rgba(8, 8, 8, 0.72);
+            color: rgba(232, 160, 32, 0.82);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 18px rgba(232, 160, 32, 0.08);
+            touch-action: manipulation;
+          }
+          .mobile-back-to-games:active {
+            background: rgba(232, 160, 32, 0.12);
+            border-color: rgba(232, 160, 32, 0.52);
+            color: #f0a500;
           }
           .mobile-game-controls {
             display: flex;

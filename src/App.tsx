@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BootScreen from './components/BootScreen';
 import TopNav from './components/TopNav';
@@ -10,7 +10,6 @@ import { Footer } from './components/ui/footer-section';
 import ConstellationBackground from './components/ConstellationBackground';
 import { useActiveSection } from './hooks/useActiveSection';
 import { NAV_ITEMS } from './data/portfolio';
-import { initLenis, destroyLenis } from './components/ui/parallax-scrolling';
 
 const SECTION_IDS = NAV_ITEMS.map((n) => n.id);
 
@@ -21,12 +20,6 @@ export default function App() {
   const handleBootComplete = useCallback(() => {
     setBooted(true);
   }, []);
-
-  useEffect(() => {
-    if (!booted) return;
-    initLenis();
-    return () => destroyLenis();
-  }, [booted]);
 
   return (
     <>

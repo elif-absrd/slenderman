@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import StandbyScreen from "./StandbyScreen";
 import GameSelector from "./GameSelector";
 import type { GameId } from "./GameSelector";
@@ -9,6 +10,7 @@ import FlappyBird from "./games/FlappyBird";
 type Screen = "standby" | "selector" | "game";
 
 export default function GamePortal() {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState<Screen>("standby");
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
 
@@ -24,9 +26,9 @@ export default function GamePortal() {
     setScreen("selector");
   };
 
-  const handleBackToStandby = () => {
+  const handleExitToPortfolio = () => {
     setActiveGame(null);
-    setScreen("standby");
+    navigate("/");
   };
 
   if (screen === "standby") {
@@ -37,7 +39,7 @@ export default function GamePortal() {
     return (
       <GameSelector
         onSelect={handleGameSelect}
-        onBack={handleBackToStandby}
+        onBack={handleExitToPortfolio}
       />
     );
   }
