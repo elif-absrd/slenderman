@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TerminalIcon } from 'lucide-react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { NAV_ITEMS, PERSONAL } from '../data/portfolio';
 import { useUptime } from '../hooks/useUptime';
 
@@ -10,8 +11,22 @@ interface TopNavProps {
 }
 
 function scrollToSection(id: string) {
+  if (id === 'hero') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'auto' });
+  if (!el) return;
+
+  const NAV_HEIGHT = 56;
+  ScrollTrigger.refresh();
+  const trigger = ScrollTrigger.getAll().find((st) => st.trigger === el);
+  const targetTop = Math.max(
+    0,
+    trigger ? trigger.start + 2 : window.scrollY + el.getBoundingClientRect().top - NAV_HEIGHT,
+  );
+  window.scrollTo({ top: targetTop, behavior: 'smooth' });
 }
 
 export default function TopNav({ activeSection, visible }: TopNavProps) {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BootScreen from './components/BootScreen';
 import TopNav from './components/TopNav';
@@ -9,13 +9,16 @@ import MilestonesSection from './components/MilestonesSection';
 import { Footer } from './components/ui/footer-section';
 import ConstellationBackground from './components/ConstellationBackground';
 import { useActiveSection } from './hooks/useActiveSection';
+import { useStackedSectionScroll } from './hooks/useStackedSectionScroll';
 import { NAV_ITEMS } from './data/portfolio';
 
 const SECTION_IDS = NAV_ITEMS.map((n) => n.id);
 
 export default function App() {
   const [booted, setBooted] = useState(false);
+  const slidesRef = useRef<HTMLElement | null>(null);
   const activeSection = useActiveSection(SECTION_IDS);
+  useStackedSectionScroll(slidesRef, booted);
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
@@ -40,7 +43,7 @@ export default function App() {
             {/* All content sits at z-10+ so canvas stays purely decorative */}
             <div className="relative z-10 flex flex-col min-h-screen">
               <TopNav activeSection={activeSection} visible={booted} />
-              <main className="flex-1 pt-14">
+              <main ref={slidesRef} className="slides-wrapper flex-1 pt-14">
                 <HeroSection />
                 <SkillsSection />
                 <ProjectsSection />

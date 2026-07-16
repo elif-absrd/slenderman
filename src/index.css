@@ -32,6 +32,32 @@ body {
   font-family: 'IBM Plex Mono', monospace;
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.slides-wrapper {
+  isolation: isolate;
+}
+
+.stacked-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 56px);
+  overflow: hidden;
+  transform-origin: center top;
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(1px);
+}
+
+.stacked-panel-inner {
+  width: 100%;
+  min-height: calc(100vh - 56px);
+}
+
+.slides-wrapper .stacked-panel:last-child,
+.slides-wrapper .stacked-panel:last-child .stacked-panel-inner {
+  min-height: auto;
 }
 
 /* Scrollbar */

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 
 /**
  * Tracks which section is currently "active" based on scroll position.
- * Uses getBoundingClientRect so tall sections (taller than viewport) work
- * correctly — whichever section's top edge is nearest to the nav height wins.
+ * Uses viewport hit-testing because GSAP-pinned panels can overlap in document
+ * space; the active nav item should match the section the user can see.
  */
 export function useActiveSection(sectionIds: string[]): string {
   const [activeSection, setActiveSection] = useState<string>(sectionIds[0] ?? '');
@@ -13,23 +13,27 @@ export function useActiveSection(sectionIds: string[]): string {
     const NAV_HEIGHT = 56;
 
     function update() {
-      let best = sectionIds[0] ?? '';
-      let bestDist = Infinity;
+      const samplePoints = [
+        [window.innerWidth / 2, NAV_HEIGHT + window.innerHeight * 0.25],
+        [window.innerWidth / 2, NAV_HEIGHT + window.innerHeight * 0.45],
+        [window.innerWidth / 2, NAV_HEIGHT + window.innerHeight * 0.65],
+      ];
 
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        // Distance of the section's top edge from just below the nav
-        const dist = Math.abs(rect.top - NAV_HEIGHT);
-        // Only consider sections whose top is above the middle of the viewport
-        if (rect.top <= window.innerHeight * 0.6 && dist < bestDist) {
-          bestDist = dist;
-          best = id;
+      for (const [x, y] of samplePoints) {
+        const elements = document.elementsFromPoint(x, y);
+        const section = elements
+          .map((el) => el.closest<HTMLElement>('section[id]'))
+          .find((el): el is HTMLElement => Boolean(el && sectionIds.includes(el.id)));
+
+        if (section) {
+          setActiveSection(section.id);
+          return;
         }
       }
 
-      setActiveSection(best);
+      if (window.scrollY < window.innerHeight * 0.4) {
+        setActiveSection(sectionIds[0] ?? '');
+      }
     }
 
     function onScroll() {

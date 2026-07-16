@@ -61,17 +61,18 @@ export function Footer() {
         <AnimatedContainer className="space-y-4">
           <div className="flex items-center gap-2">
             <TerminalIcon className="w-5 h-5 text-amber" style={{ color: '#E8A020' }} />
-            <span className="font-mono text-sm font-bold text-white tracking-wide">VINAY LUNAWAT</span>
+            <span className="font-mono text-sm font-bold text-white tracking-wide">elif_absrd</span>
           </div>
           <p className="font-mono text-[11px] text-[#666660] leading-relaxed max-w-[240px]">
-            Systems programmer. Kernel builder.
+            Systems programmer. Gamer.
             <br />
-            CSE @ JKLU · IIT Gandhinagar Scholar.
+            CSE @ JKLU · 
+            <br />
+            IIT Gandhinagar V.Scholar.
           </p>
           <p className="font-mono text-[10px] text-[#444440]">
-            © {new Date().getFullYear()} Vinay Lunawat.
+            © Vinay Lunawat.
             <br />
-            Built from scratch. No templates.
           </p>
         </AnimatedContainer>
 
@@ -107,9 +108,7 @@ export function Footer() {
       {/* Bottom bar */}
       <AnimatedContainer delay={0.5}>
         <div className="mt-12 pt-6 border-t border-[#1a1a1a] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="font-mono text-[10px] text-[#333330] tracking-widest">
-            KERNEL: STABLE · MEM: 64K · UPTIME: ∞
-          </div>
+          
           <div className="font-mono text-[10px] text-[#333330]">
             {PERSONAL.location} · {PERSONAL.email}
           </div>
